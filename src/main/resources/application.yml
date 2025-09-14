@@ -1,0 +1,5 @@
+loginApiUrl: https://forty-suits-argue.loca.lt/api/v1/usuarios/login
+username: asesor@test.com
+password: 567
+listAppicationsUrl: https://orange-guests-shout.loca.lt/api/v1/solicitud?findAll=true&statusIds=%s&userIdNumber=%s
+updateAppicationUrl: https://orange-guests-shout.loca.lt/api/v1/solicitud
