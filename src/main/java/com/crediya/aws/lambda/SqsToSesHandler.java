@@ -13,16 +13,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import software.amazon.awssdk.services.ses.SesClient;
 
 public class SqsToSesHandler implements RequestHandler<SQSEvent, Void> {
-
-    private static final String FROM_ADDRESS = "diegoramosp@gmail.com";
-    private static final String SUBJECT_TEMPLATE = "Application #%d status update";
-
-    private static final String HTML_BODY_TEMPLATE =
-            "<h1>Application Update</h1>" +
-                    "<p>Your application <b>%d</b> is now <b>%s</b>.</p>";
-    private static final String TEXT_BODY_TEMPLATE =
-            "Your application %d is now %s";
-
     private final ObjectMapper mapper = new ObjectMapper();
     private final SesClient sesClient = SesClient.builder().build();
 
@@ -36,7 +26,7 @@ public class SqsToSesHandler implements RequestHandler<SQSEvent, Void> {
                 mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
                 JsonNode root = mapper.readTree(sqsMessage.getBody());
-                context.getLogger().log("VERSION 121 ***********************************************");
+                context.getLogger().log("VERSION 123 ***********************************************");
                 context.getLogger().log("JSON FROM SQS: " + root);
 
                 Application app = mapper.treeToValue(root.get("application"), Application.class);

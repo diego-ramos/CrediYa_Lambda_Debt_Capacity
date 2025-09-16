@@ -3,20 +3,17 @@ package com.crediya.aws.lambda.application;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.crediya.aws.lambda.dto.Application;
 import com.crediya.aws.lambda.dto.User;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.net.http.HttpClient;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class ApplicationEvaluation {
-    BigDecimal CAPACITY_RATE = BigDecimal.valueOf(0.35);
-
-    private final ObjectMapper mapper = new ObjectMapper();
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private static final BigDecimal CAPACITY_RATE = BigDecimal.valueOf(0.35);
+    private static final BigDecimal MANUAL_REVISION_MULTIPLIER = BigDecimal.valueOf(5);
 
     private final Application application;
     private final Context context;
@@ -32,7 +29,6 @@ public class ApplicationEvaluation {
         context.getLogger().log("Calling API: " + application.id());
         ApplicationRemote applicationRemote = new ApplicationRemote(context);
         List<Application> approvedApplications = applicationRemote.getUserApprovedApplications(application);
-       // applicationRemote.getUserApprovedApplications(application, context)
         context.getLogger().log("Approved Applications: " + approvedApplications.size());
 
         BigDecimal totalCurrentPayments = approvedApplications.stream()
@@ -47,16 +43,30 @@ public class ApplicationEvaluation {
                 .orElse(BigDecimal.ZERO);
 
         context.getLogger().log("User Capacity: " +userCapacity);
-        context.getLogger().log("calculateMonthlyPayment compared to userCapacity: " +calculateMonthlyPayment(application).compareTo(userCapacity));
-        boolean loanAproved =  calculateMonthlyPayment(application).compareTo(userCapacity) < 0;
 
-        context.getLogger().log("Application has been Approved?: " +loanAproved);
+        BigDecimal currentApplicationPayment = calculateMonthlyPayment(application);
 
-        int newAppStatus = loanAproved ? ApplicationStatusEnum.APPROVED.id :  ApplicationStatusEnum.REJECTED.id;
+        context.getLogger().log("calculateMonthlyPayment compared to userCapacity: " + currentApplicationPayment.compareTo(userCapacity));
+        boolean loanAproved = currentApplicationPayment.compareTo(userCapacity) <= 0;
 
-        context.getLogger().log("Application has been Updated: " + applicationRemote.updateApplicationStatus(application.id(), newAppStatus));
+        context.getLogger().log("Application has been Approved?: " + loanAproved);
 
+        ApplicationStatusEnum newLoanStatus = ApplicationStatusEnum.REJECTED;
+
+        if (loanAproved) {
+            BigDecimal baseSalary = application.user()
+                    .map(User::baseSalary)
+                    .orElse(BigDecimal.ZERO);
+
+            if (application.amount().compareTo(baseSalary.multiply(MANUAL_REVISION_MULTIPLIER)) <= 0) {
+                newLoanStatus = ApplicationStatusEnum.APPROVED;
+            }else {
+                newLoanStatus = ApplicationStatusEnum.MANUAL_REVISION;
+            }
         }
+
+        context.getLogger().log("Application has been Updated: " + applicationRemote.updateApplicationStatus(application.id(),  newLoanStatus.id));
+    }
 
     private BigDecimal calculateMonthlyPayment(Application application) {
         BigDecimal P = application.amount(); // Capital
@@ -79,4 +89,5 @@ public class ApplicationEvaluation {
         this. context.getLogger().log("Montly payment for " + application.id() + ": " + monthlyPayment);
         return monthlyPayment.setScale(2, RoundingMode.HALF_UP); // redondeo final a 2 decimales
     }
+
 }
