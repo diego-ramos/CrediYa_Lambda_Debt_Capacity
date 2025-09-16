@@ -7,7 +7,6 @@ import com.crediya.aws.lambda.dto.User;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,13 +46,13 @@ public class ApplicationEvaluation {
         BigDecimal currentApplicationPayment = calculateMonthlyPayment(application);
 
         context.getLogger().log("calculateMonthlyPayment compared to userCapacity: " + currentApplicationPayment.compareTo(userCapacity));
-        boolean loanAproved = currentApplicationPayment.compareTo(userCapacity) <= 0;
+        boolean loanApproved = currentApplicationPayment.compareTo(userCapacity) <= 0;
 
-        context.getLogger().log("Application has been Approved?: " + loanAproved);
+        context.getLogger().log("Application has been Approved?: " + loanApproved);
 
         ApplicationStatusEnum newLoanStatus = ApplicationStatusEnum.REJECTED;
 
-        if (loanAproved) {
+        if (loanApproved) {
             BigDecimal baseSalary = application.user()
                     .map(User::baseSalary)
                     .orElse(BigDecimal.ZERO);
