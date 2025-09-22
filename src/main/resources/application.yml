@@ -1,5 +1,5 @@
-loginApiUrl: https://public-papers-burn.loca.lt/api/v1/usuarios/login
+loginApiUrl: "${LOGIN_API_URL:http://localhost:8080/api/v1/usuarios/login}"
 username: asesor@test.com
 password: 567
-listAppicationsUrl: https://brave-lizards-sell.loca.lt/api/v1/solicitud?findAll=true&statusIds=%s&userIdNumber=%s
-updateAppicationUrl: https://brave-lizards-sell.loca.lt/api/v1/solicitud
+listAppicationsUrl:  "${LIST_APPLICATION_URL:https://shy-keys-lie.loca.lt/api/v1/solicitud?findAll=true&statusIds=%s&userIdNumber=%s}"
+updateAppicationUrl:  "${UPDATE_APPLICATION_URL:https://shy-keys-lie.loca.lt/api/v1/solicitud}"

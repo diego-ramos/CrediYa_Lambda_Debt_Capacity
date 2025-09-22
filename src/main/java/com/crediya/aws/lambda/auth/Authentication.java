@@ -1,6 +1,7 @@
 package com.crediya.aws.lambda.auth;
 
 import com.amazonaws.services.lambda.runtime.Context;
+import com.crediya.aws.lambda.config.AppConfig;
 import com.crediya.aws.lambda.config.Config;
 import com.crediya.aws.lambda.dto.AuthResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,9 +19,10 @@ public class Authentication {
         final HttpClient httpClient = HttpClient.newHttpClient();
         final ObjectMapper mapper = new ObjectMapper();
 
-        var config = Config.get();
+        var config = AppConfig.get();
 
         String url = config.loginApiUrl;
+        context.getLogger().log("LOGIN API URL: " + url);
 
         try {
             String payload = String.format("""

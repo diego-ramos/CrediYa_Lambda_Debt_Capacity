@@ -2,6 +2,7 @@ package com.crediya.aws.lambda.application;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.crediya.aws.lambda.auth.Authentication;
+import com.crediya.aws.lambda.config.AppConfig;
 import com.crediya.aws.lambda.config.Config;
 import com.crediya.aws.lambda.dto.Application;
 import com.crediya.aws.lambda.dto.AuthResponse;
@@ -35,7 +36,7 @@ public class ApplicationRemote {
     public List<Application> getUserApprovedApplications(Application application) {
         context.getLogger().log(mapper.getRegisteredModuleIds().toString());
         try {
-            var config = Config.get();
+            var config = AppConfig.get();
             AuthResponse authResponse = Authentication.authenticate(context);
 
             String statusIdsParam = String.valueOf(ApplicationStatusEnum.APPROVED.id);
@@ -81,7 +82,7 @@ public class ApplicationRemote {
     }
 
     public Application updateApplicationStatus(long id, int newApplicationStatusId) {
-        var config = Config.get();
+        var config = AppConfig.get();
 
         AuthResponse authResponse = Authentication.authenticate(context);
         context.getLogger().log("Calling auth login: " + authResponse);
